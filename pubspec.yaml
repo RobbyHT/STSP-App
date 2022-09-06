@@ -1,0 +1,62 @@
+name: stsp_app
+description: A new Flutter project.
+version: 1.0.0+1
+environment: 
+  sdk: '>=2.12.0 <3.0.0'
+dependencies: 
+  flutter: 
+    sdk: flutter
+  get: 4.6.1
+  pull_to_refresh: ^2.0.0
+  cupertino_icons: ^1.0.0
+  connectivity_plus: ^1.4.0
+  shared_preferences: ^2.0.7
+  cached_network_image: ^3.1.0
+  flutter_svg: ^0.22.0
+  webview_flutter: ^3.0.4
+  flutter_inappwebview: ^5.4.3+7
+  image_picker: ^0.8.5+3
+  intl: ^0.17.0
+  permission_handler: ^9.2.0
+  flutter_form_builder: ^7.3.0
+  transparent_image: ^2.0.0
+  path_provider: ^2.0.11
+  dio: ^4.0.6
+  path: any
+  http: ^0.13.4
+  #babylonjs_viewer: ^1.1.4
+  model_viewer_plus: ^1.3.1
+  #model_viewer: ^0.8.1
+dev_dependencies: 
+  flutter_test: 
+    sdk: flutter
+flutter: 
+  uses-material-design: true
+  assets: 
+    - assets/
+    - assets/images/
+    - assets/images/album/
+    - files/
+  fonts: 
+    - family: Urbanist
+      fonts: 
+        - asset: assets/fonts/urbanisturbanistromanbold700.ttf
+          weight: 700
+        - asset: assets/fonts/urbanistsemibold600.ttf
+          weight: 600
+        - asset: assets/fonts/urbanisturbanistromanmedium500.ttf
+          weight: 500
+    - family: Ubuntu Condensed
+      fonts: 
+        - asset: assets/fonts/ubuntucondensedregular400.ttf
+          weight: 400
+    - family: Tajawal
+      fonts: 
+        - asset: assets/fonts/tajawalregular400.ttf
+          weight: 400
+    - family: Poppins
+      fonts: 
+        - asset: assets/fonts/poppinsmedium500.ttf
+          weight: 500
+        - asset: assets/fonts/poppinsregular400.ttf
+          weight: 400

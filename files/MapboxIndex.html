@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Show polygon information on click</title>
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.8.2/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.8.2/mapbox-gl.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src='https://unpkg.com/@turf/turf@6/turf.min.js'></script>
+    <style>
+      body { margin: 0; padding: 0; }
+      #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+      .mapboxgl-popup {
+        max-width: 400px;
+        font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script>
+      $.ajaxSetup({
+        async: false
+      });
+
+      // building.geojson
+      $.getJSON('https://mocki.io/v1/3cda750e-5fad-4944-ae24-6343dc83ac8b', function(data) {
+        geojson = data;
+      });
+
+      //building2.geojson
+      // $.getJSON('https://mocki.io/v1/c34a99ef-50c4-435c-a426-86b08baa13b1', function(data) {
+      //   geojson = data;
+      // });
+      
+      let color = ["#BED558", "#ABB557", "#8B9556", "#756D54", "#6D545D", "#70D6FF", "#FF9770", "#FFD670", "#E9FF70", "red", "yellow", "green", "blue"];
+
+      var results = [];
+      geojson.features.forEach(feature => {
+        var arr = [];
+        if (feature.properties.height == null)
+          arr.push('5');
+        else
+          arr = feature.properties.height.split(',');
+
+        var s = 0;
+        arr.forEach((height, index) => {
+          height = parseFloat(height) * 10 + s;
+          results.push({
+            "type": feature.type,
+            "id" : feature.id, 
+            "geometry" : feature.geometry,
+            "geometry_name" : feature.geometry_name,
+            "properties" : {
+              "bid" : feature.properties.bid, 
+              "name" : `${feature.properties.name} (${index+1}樓)`, 
+              "floor" : feature.properties.floor, 
+              "base_height" : s, 
+              "height" : height, 
+              //"color" : "#" + Math.floor(Math.random()*16777215).toString(16),
+              "color" : color[index],
+              "address" : feature.properties.address, 
+              "logo" : feature.properties.logo, 
+              "reg" : feature.properties.reg, 
+              "f_id" : feature.properties.f_id
+            }
+          });
+          s = height;
+        });
+      });
+
+      var featOut = {
+        "type": "FeatureCollection",
+        "features": results
+      }
+
+      mapboxgl.accessToken = 'pk.eyJ1Ijoicm9iYnlodCIsImEiOiJja3p3bmV3dWo0dzVnMm5xcnRjZHQyemExIn0.CG45FObydOZJhiJarTW6nw';
+      const map = new mapboxgl.Map({
+          container: 'map',
+          style: 'mapbox://styles/mapbox/streets-v11',
+          center: [120.280, 23.092],
+          zoom: 15,
+          pitch: 40,
+          bearing: 20,
+          antialias: true
+      });
+
+      map.on('load', () => {
+        map.addSource('building_data', {
+            'type': 'geojson',
+            'data': featOut
+        });
+
+        map.addLayer({
+          'id': 'building-layer',
+          'type': 'fill-extrusion',
+          'source': 'building_data',
+          'paint': {
+            'fill-extrusion-color': ['get', 'color'],
+            'fill-extrusion-base': ['get', 'base_height'],
+            'fill-extrusion-height': ['get', 'height'],
+            'fill-extrusion-opacity': 0.9
+          }
+        });
+
+        var geolocate = new mapboxgl.GeolocateControl({
+          positionOptions: {
+            enableHighAccuracy: true
+          },
+          trackUserLocation: true,
+          showUserHeading: true
+        });
+
+        map.addControl(geolocate);
+
+        map.on('click', 'building-layer', (e) => {
+          new mapboxgl.Popup()
+            .setLngLat(e.lngLat)
+            .setHTML(e.features[0].properties.name)
+            .addTo(map);
+
+            window.flutter_inappwebview.callHandler('comunicationname', e.features[0].properties);
+        });
+
+        map.on('mouseenter', 'building-layer', () => {
+          map.getCanvas().style.cursor = 'pointer';
+        });
+
+        map.on('mouseleave', 'building-layer', () => {
+          map.getCanvas().style.cursor = '';
+        });
+      });
+
+      function setBuilding(layer){
+        const visibility = map.getLayoutProperty(
+          layer,
+          'visibility'
+        );
+
+        if (visibility === 'visible') {
+          map.setLayoutProperty(layer, 'visibility', 'none');
+        } else {
+          map.setLayoutProperty(layer, 'visibility', 'visible');
+        }
+
+        if (visibility == null) map.setLayoutProperty(layer, 'visibility', 'none');
+        return true;
+      }
+
+      function setLocate(){
+        $(".mapboxgl-ctrl-geolocate").click();
+        if($(".mapboxgl-ctrl-geolocate").hasClass("mapboxgl-ctrl-geolocate-active")) {
+          return true;
+        }
+        return false;
+      }
+    </script>
+  </body>
+</html>
